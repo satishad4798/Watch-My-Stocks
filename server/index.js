@@ -8,6 +8,55 @@ const PORT = 3001;
 app.use(cors());
 app.use(express.json());
 
+// ==================== SYMBOL SEARCH PROXY ====================
+
+// Proxy for TradingView symbol search (to bypass CORS)
+app.get('/api/search-symbols', async (req, res) => {
+    const { query, exchange } = req.query;
+
+    if (!query || query.length < 1) {
+        return res.json({ symbols: [] });
+    }
+
+    try {
+        const url = `https://symbol-search.tradingview.com/symbol_search/v3/?text=${encodeURIComponent(query)}&hl=1&exchange=${exchange || ''}&lang=en&search_type=stocks&domain=production&sort_by_country=IN`;
+
+        const response = await fetch(url, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+                'Accept': 'application/json',
+                'Origin': 'https://www.tradingview.com',
+                'Referer': 'https://www.tradingview.com/'
+            }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+
+            // Helper to strip HTML tags from highlighted results
+            const stripTags = (str) => str ? str.replace(/<[^>]*>/g, '') : str;
+
+            // Format and limit results
+            const symbols = (data.symbols || [])
+                .slice(0, 10)
+                .map(item => ({
+                    symbol: stripTags(item.symbol),
+                    name: stripTags(item.description || item.symbol),
+                    exchange: item.exchange,
+                    type: item.type,
+                    fullSymbol: `${item.exchange}:${stripTags(item.symbol)}`
+                }));
+
+            res.json({ symbols });
+        } else {
+            res.json({ symbols: [], error: 'Search failed' });
+        }
+    } catch (error) {
+        console.error('Symbol search error:', error);
+        res.json({ symbols: [], error: error.message });
+    }
+});
+
 // ==================== GROUPS ====================
 
 // Get all groups

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import SymbolSearch from './SymbolSearch';
 
 function AddStockModal({ groups, onAdd, onClose }) {
     const [symbol, setSymbol] = useState('');
@@ -7,6 +8,16 @@ function AddStockModal({ groups, onAdd, onClose }) {
     const [exchange, setExchange] = useState('NSE');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+
+    // Handle symbol selection from auto-suggest
+    const handleSymbolSelect = (suggestion) => {
+        setSymbol(suggestion.symbol);
+        setName(suggestion.name);
+        // Update exchange based on suggestion
+        if (suggestion.exchange) {
+            setExchange(suggestion.exchange);
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -76,16 +87,14 @@ function AddStockModal({ groups, onAdd, onClose }) {
                             </select>
                         </div>
 
-                        {/* Symbol Input */}
+                        {/* Symbol Input with Auto-suggest */}
                         <div className="form-group">
-                            <label className="form-label">Symbol *</label>
-                            <input
-                                type="text"
-                                className="form-input"
-                                placeholder="e.g., RELIANCE, TCS, INFY"
+                            <label className="form-label">Symbol * (Start typing to search)</label>
+                            <SymbolSearch
                                 value={symbol}
-                                onChange={(e) => setSymbol(e.target.value.toUpperCase())}
-                                autoFocus
+                                onChange={setSymbol}
+                                onSelect={handleSymbolSelect}
+                                exchange={exchange}
                             />
                             <p className="form-hint">
                                 Full symbol will be: {exchange}:{symbol || 'SYMBOL'}
@@ -102,6 +111,9 @@ function AddStockModal({ groups, onAdd, onClose }) {
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                             />
+                            <p className="form-hint" style={{ color: 'var(--success)' }}>
+                                💡 Auto-filled when you select from suggestions
+                            </p>
                         </div>
 
                         {/* Group Selection */}

@@ -158,16 +158,16 @@ Contributions are welcome! Feel free to:
 
 MIT License - feel free to use this for personal or commercial projects.
 
-## �️ Roadmap
+## 🗺️ Roadmap
 
 Planned features:
-- [ ] **Stock symbol auto-suggest** when adding stocks
+- [x] **Stock symbol auto-suggest** when adding stocks ✅
 - [ ] Price alerts and notifications
 - [ ] Export watchlist to CSV
 - [ ] Dark/Light theme toggle
 - [ ] Multiple watchlists support
 
-## �🙏 Acknowledgments
+## 🙏 Acknowledgments
 
 - [TradingView](https://www.tradingview.com/) for the excellent charting widgets
 - [better-sqlite3](https://github.com/WiseLibs/better-sqlite3) for the fast SQLite implementation

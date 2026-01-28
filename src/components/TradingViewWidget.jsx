@@ -2,7 +2,6 @@ import { useEffect, useRef, memo } from 'react';
 
 function TradingViewWidget({ symbol, height = '100%' }) {
     const containerRef = useRef(null);
-    const widgetRef = useRef(null);
 
     useEffect(() => {
         // Clear previous widget
@@ -18,39 +17,49 @@ function TradingViewWidget({ symbol, height = '100%' }) {
 
         const widgetDiv = document.createElement('div');
         widgetDiv.className = 'tradingview-widget-container__widget';
-        widgetDiv.style.height = 'calc(100% - 32px)';
+        widgetDiv.style.height = '100%';
         widgetDiv.style.width = '100%';
         widgetContainer.appendChild(widgetDiv);
 
-        // Create and inject script
+        // Use the symbol-overview widget which has better support for Indian stocks
         const script = document.createElement('script');
-        script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+        script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js';
         script.type = 'text/javascript';
         script.async = true;
         script.innerHTML = JSON.stringify({
-            autosize: true,
-            symbol: symbol,
-            interval: 'D',
-            timezone: 'Asia/Kolkata',
-            theme: 'dark',
-            style: '1',
+            symbols: [[symbol, symbol.split(':')[1] || symbol]],
+            chartOnly: true,
+            width: '100%',
+            height: '100%',
             locale: 'en',
-            enable_publishing: false,
-            hide_top_toolbar: true,
-            hide_legend: false,
-            save_image: false,
-            calendar: false,
-            hide_volume: false,
-            support_host: 'https://www.tradingview.com',
-            backgroundColor: 'rgba(18, 18, 26, 1)',
-            gridColor: 'rgba(255, 255, 255, 0.03)',
-            allow_symbol_change: false
+            colorTheme: 'dark',
+            autosize: true,
+            showVolume: true,
+            showMA: false,
+            hideDateRanges: false,
+            hideMarketStatus: true,
+            hideSymbolLogo: false,
+            scalePosition: 'right',
+            scaleMode: 'Normal',
+            fontFamily: '-apple-system, BlinkMacSystemFont, Trebuchet MS, Roboto, Ubuntu, sans-serif',
+            fontSize: '10',
+            noTimeScale: false,
+            valuesTracking: '1',
+            changeMode: 'price-and-percent',
+            chartType: 'area',
+            lineWidth: 2,
+            lineType: 0,
+            dateRanges: ['1d|1', '1m|30', '3m|60', '12m|1D', '60m|1W', 'all|1M'],
+            upColor: '#22c55e',
+            downColor: '#ef4444',
+            borderUpColor: '#22c55e',
+            borderDownColor: '#ef4444',
+            wickUpColor: '#22c55e',
+            wickDownColor: '#ef4444'
         });
 
         widgetContainer.appendChild(script);
         containerRef.current.appendChild(widgetContainer);
-
-        widgetRef.current = widgetContainer;
 
         return () => {
             if (containerRef.current) {

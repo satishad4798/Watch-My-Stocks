@@ -19,7 +19,8 @@ app.get('/api/search-symbols', async (req, res) => {
     }
 
     try {
-        const url = `https://symbol-search.tradingview.com/symbol_search/v3/?text=${encodeURIComponent(query)}&hl=1&exchange=${exchange || ''}&lang=en&search_type=stocks&domain=production&sort_by_country=IN`;
+        // hl=0 disables HTML highlighting in results
+        const url = `https://symbol-search.tradingview.com/symbol_search/v3/?text=${encodeURIComponent(query)}&hl=0&exchange=${exchange || ''}&lang=en&search_type=stocks&domain=production&sort_by_country=IN`;
 
         const response = await fetch(url, {
             headers: {
@@ -33,18 +34,15 @@ app.get('/api/search-symbols', async (req, res) => {
         if (response.ok) {
             const data = await response.json();
 
-            // Helper to strip HTML tags from highlighted results
-            const stripTags = (str) => str ? str.replace(/<[^>]*>/g, '') : str;
-
-            // Format and limit results
+            // Format and limit results (no HTML tags since hl=0)
             const symbols = (data.symbols || [])
                 .slice(0, 10)
                 .map(item => ({
-                    symbol: stripTags(item.symbol),
-                    name: stripTags(item.description || item.symbol),
+                    symbol: item.symbol,
+                    name: item.description || item.symbol,
                     exchange: item.exchange,
                     type: item.type,
-                    fullSymbol: `${item.exchange}:${stripTags(item.symbol)}`
+                    fullSymbol: `${item.exchange}:${item.symbol}`
                 }));
 
             res.json({ symbols });
